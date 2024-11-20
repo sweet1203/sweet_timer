@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-  <!-- 이 타이머는 대성여자고등학교 정보쌤이 만들었습니다. ^^  -->
+  <!-- 이 타이머는 대성여자고등학교 정보샘이 만들었습니다. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
-      background-color: #f4f4f4;
+      background-color: #ffe4e6; /* 밝은 분홍색 배경 */
       color: #333;
       transition: background-color 0.3s ease;
     }
@@ -24,26 +24,28 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: conic-gradient(#FF69B4 0%, white 0%);
+      background: conic-gradient(#FF69B4 0%, white 0%); /* 분홍색 타이머 진행 */
     }
     #timeInput {
       margin: 10px;
       font-size: 1.2rem;
       padding: 5px;
-      width: 30%; /* 너비를 3분의 1로 줄임 */
+      width: 30%; /* 기본 너비: 30% */
+      border: 2px solid #FF69B4; /* 분홍색 테두리 */
+      border-radius: 5px;
     }
     button {
       font-size: 1.1rem;
       padding: 10px 20px;
       margin: 10px 5px;
       border: none;
-      background-color: #FF69B4;
+      background-color: #FF69B4; /* 분홍색 버튼 */
       color: white;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #e05696;
+      background-color: #e05696; /* 더 진한 분홍색 */
     }
     button:disabled {
       background-color: #ccc;
@@ -57,6 +59,17 @@
     #timeDisplay {
       font-size: 2rem;
       margin-top: 20px;
+    }
+
+    /* 모바일 화면을 위한 미디어 쿼리 */
+    @media (max-width: 768px) {
+      #timeInput {
+        width: 50%; /* 모바일에서는 너비를 50%로 조정 */
+      }
+      button {
+        font-size: 1rem; /* 버튼 크기를 약간 축소 */
+        padding: 8px 16px;
+      }
     }
   </style>
 </head>
@@ -150,10 +163,10 @@
       const flashInterval = setInterval(() => {
         if (!isFlashing) {
           clearInterval(flashInterval);
-          body.style.backgroundColor = '#f4f4f4'; // Reset to original color
+          body.style.backgroundColor = '#ffe4e6'; // Reset to original color
           return;
         }
-        body.style.backgroundColor = flash ? '#FF69B4' : '#f4f4f4';
+        body.style.backgroundColor = flash ? '#FF69B4' : '#ffe4e6';
         flash = !flash;
       }, 500);
 
@@ -162,7 +175,7 @@
 
     function stopFlashing() {
       isFlashing = false;
-      document.body.style.backgroundColor = '#f4f4f4';
+      document.body.style.backgroundColor = '#ffe4e6';
     }
   </script>
 </body>
