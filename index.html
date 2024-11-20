@@ -66,6 +66,18 @@
       margin-top: 20px;
     }
 
+    /* 작은 회색 링크 스타일 */
+    .footer-link {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: gray;
+      text-decoration: none;
+    }
+    .footer-link:hover {
+      color: black;
+      text-decoration: underline;
+    }
+
     /* 모바일 화면을 위한 미디어 쿼리 */
     @media (max-width: 768px) {
       #timeInput {
@@ -91,6 +103,9 @@
     <div class="circle" id="timerCircle"></div>
   </div>
   <p id="timeDisplay">00:00</p>
+
+  <!-- 작은 회색 링크 추가 -->
+  <a href="blue_timer.html" class="footer-link">version_Blue</a>
 
   <script>
     let timerInterval;
