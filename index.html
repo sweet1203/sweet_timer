@@ -109,9 +109,8 @@
 
   <!-- Footer -->
   <div class="footer">
-    <a href="other_colors.html">Other Colors?</a><br><br>
-    - 대성여고 정보샘 제작 - 
-    
+    - 대성여고 정보샘 제작 - <br>
+    <a href="version_blue.html">Other Colors?</a>
   </div>
 
   <script>
@@ -119,6 +118,7 @@
     let remainingTime;
     let totalTime;
     let isPaused = false;
+    let isFlashing = false;
 
     function startTimer() {
       const timeInput = document.getElementById('timeInput').value;
@@ -138,17 +138,14 @@
       const timeDisplay = document.getElementById('timeDisplay');
 
       clearInterval(timerInterval);
+      stopFlashing(); // Reset flashing if it was active
 
       timerInterval = setInterval(() => {
         if (remainingTime <= 0) {
           clearInterval(timerInterval);
           timeDisplay.textContent = "Time's up!";
           timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
-
-          // 자동 초기화 3초 후
-          setTimeout(() => {
-            resetTimer();
-          }, 3000);
+          startFlashing();
           return;
         }
 
@@ -181,7 +178,37 @@
       document.getElementById('pauseBtn').disabled = true;
       document.getElementById('resetBtn').disabled = true;
       document.getElementById('timeInput').value = '';
+      stopFlashing();
       isPaused = false;
+    }
+
+    function startFlashing() {
+      isFlashing = true;
+      const body = document.body;
+      let flash = true;
+
+      const flashInterval = setInterval(() => {
+        if (!isFlashing) {
+          clearInterval(flashInterval);
+          body.style.backgroundColor = '#ffe4e6'; // Reset to original color
+          return;
+        }
+        body.style.backgroundColor = flash ? '#FF69B4' : '#ffe4e6';
+        flash = !flash;
+      }, 500);
+
+      // Add click event to stop flashing and reset timer
+      document.body.addEventListener('click', () => {
+        if (isFlashing) {
+          stopFlashing();
+          resetTimer();
+        }
+      });
+    }
+
+    function stopFlashing() {
+      isFlashing = false;
+      document.body.style.backgroundColor = '#ffe4e6';
     }
   </script>
 </body>
