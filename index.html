@@ -27,12 +27,17 @@
       background: conic-gradient(#FF69B4 0%, white 0%); /* 분홍색 타이머 진행 */
     }
     #timeInput {
-      margin: 10px;
+      margin: 10px auto; /* 가운데 정렬을 위한 여백 */
       font-size: 1.2rem;
       padding: 5px;
       width: 30%; /* 기본 너비: 30% */
       border: 2px solid #FF69B4; /* 분홍색 테두리 */
       border-radius: 5px;
+      display: block; /* 입력 필드를 블록 요소로 설정 */
+    }
+    p {
+      text-align: center; /* "Enter minutes" 텍스트를 가운데 정렬 */
+      margin-bottom: 10px;
     }
     button {
       font-size: 1.1rem;
@@ -75,7 +80,7 @@
 </head>
 <body>
   <h1>Pomodoro Timer</h1>
-  <p>Enter time in minutes:</p>
+  <p>Enter time in minutes:</p> <!-- 텍스트가 가운데 정렬됨 -->
   <input type="number" id="timeInput" placeholder="Enter minutes" min="1">
   <div id="controls">
     <button onclick="startTimer()">Start</button>
