@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+  <!-- 이 타이머는 대성여자고등학교 구정화샘이 만들었습니다. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer - Blue Version</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #e3f2fd; /* 밝은 푸른색 배경 */
+      color: #333;
+      transition: background-color 0.3s ease;
+    }
+    #timerContainer {
+      margin: 20px auto;
+      width: 250px;
+      height: 250px;
+      position: relative;
+    }
+    .circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(#42a5f5 0%, white 0%); /* 푸른색 타이머 진행 */
+    }
+    #timeInput {
+      margin: 10px auto; /* 가운데 정렬을 위한 여백 */
+      font-size: 1.2rem;
+      padding: 5px;
+      width: 30%; /* 기본 너비: 30% */
+      border: 2px solid #42a5f5; /* 푸른색 테두리 */
+      border-radius: 5px;
+      display: block; /* 입력 필드를 블록 요소로 설정 */
+    }
+    p {
+      text-align: center; /* "Enter minutes" 텍스트를 가운데 정렬 */
+      margin-bottom: 10px;
+    }
+    button {
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      margin: 10px 5px;
+      border: none;
+      background-color: #42a5f5; /* 푸른색 버튼 */
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e88e5; /* 더 진한 푸른색 */
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    #timeDisplay {
+      font-size: 2rem;
+      margin-top: 20px;
+    }
+
+    /* 작은 회색 링크 스타일 */
+    .footer-link {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: gray;
+      text-decoration: none;
+    }
+    .footer-link:hover {
+      color: black;
+      text-decoration: underline;
+    }
+
+    /* 모바일 화면을 위한 미디어 쿼리 */
+    @media (max-width: 768px) {
+      #timeInput {
+        width: 50%; /* 모바일에서는 너비를 50%로 조정 */
+      }
+      button {
+        font-size: 1rem; /* 버튼 크기를 약간 축소 */
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Pomodoro Timer - Blue Version</h1>
+  <p>Enter time in minutes:</p> <!-- 텍스트가 가운데 정렬됨 -->
+  <input type="number" id="timeInput" placeholder="Enter minutes" min="1">
+  <div id="controls">
+    <button onclick="startTimer()">Start</button>
+    <button onclick="pauseTimer()" id="pauseBtn" disabled>Pause</button>
+    <button onclick="resetTimer()" id="resetBtn" disabled>Reset</button>
+  </div>
+  <div id="timerContainer">
+    <div class="circle" id="timerCircle"></div>
+  </div>
+  <p id="timeDisplay">00:00</p>
+
+  <!-- 작은 회색 링크 추가 -->
+  <a href="index.html" class="footer-link">version_Pink</a>
+<p style="font-size: 0.8rem; color: gray; margin-top: 5px;">- 대성여고정보샘 제작 -</p>
+  <script>
+    let timerInterval;
+    let remainingTime;
+    let totalTime;
+    let isPaused = false;
+    let isFlashing = false;
+
+    function startTimer() {
+      const timeInput = document.getElementById('timeInput').value;
+      if (!isPaused) {
+        totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
+        if (isNaN(totalTime) || totalTime <= 0) {
+          alert("Please enter a valid number of minutes.");
+          return;
+        }
+        remainingTime = totalTime;
+      }
+      isPaused = false;
+      document.getElementById('pauseBtn').disabled = false;
+      document.getElementById('resetBtn').disabled = false;
+
+      const timerCircle = document.getElementById('timerCircle');
+      const timeDisplay = document.getElementById('timeDisplay');
+
+      clearInterval(timerInterval);
+      stopFlashing(); // Reset flashing if it was active
+
+      timerInterval = setInterval(() => {
+        if (remainingTime <= 0) {
+          clearInterval(timerInterval);
+          timeDisplay.textContent = "Time's up!";
+          timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
+          startFlashing();
+          return;
+        }
+
+        remainingTime--;
+
+        // Update time display
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+        timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // Update circle
+        const progress = ((totalTime - remainingTime) / totalTime) * 100;
+        timerCircle.style.background = `conic-gradient(#42a5f5 ${progress}%, white ${progress}%)`;
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        isPaused = true;
+        document.getElementById('pauseBtn').disabled = true;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      remainingTime = 0;
+      document.getElementById('timeDisplay').textContent = "00:00";
+      document.getElementById('timerCircle').style.background = `conic-gradient(white 0%, white 100%)`;
+      document.getElementById('pauseBtn').disabled = true;
+      document.getElementById('resetBtn').disabled = true;
+      document.getElementById('timeInput').value = '';
+      stopFlashing();
+      isPaused = false;
+    }
+
+    function startFlashing() {
+      isFlashing = true;
+      const body = document.body;
+      let flash = true;
+      const flashInterval = setInterval(() => {
+        if (!isFlashing) {
+          clearInterval(flashInterval);
+          body.style.backgroundColor = '#e3f2fd'; // Reset to original color
+          return;
+        }
+        body.style.backgroundColor = flash ? '#42a5f5' : '#e3f2fd';
+        flash = !flash;
+      }, 500);
+
+      document.body.addEventListener('click', stopFlashing);
+    }
+
+    function stopFlashing() {
+      isFlashing = false;
+      document.body.style.backgroundColor = '#e3f2fd';
+    }
+  </script>
+</body>
+</html>
