@@ -63,9 +63,29 @@
       margin-top: 20px;
     }
     .footer {
+    .footer {
       margin-top: 20px;
       font-size: 0.8rem;
       color: gray;
+      text-align: center;
+    }
+    .footer a {
+      color: #FF69B4;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* 모바일 화면을 위한 미디어 쿼리 */
+    @media (max-width: 768px) {
+      #timeInput {
+        width: 50%; /* 모바일에서는 너비를 50%로 조정 */
+      }
+      button {
+        font-size: 1rem; /* 버튼 크기를 약간 축소 */
+        padding: 8px 16px;
+      }
     }
   </style>
 </head>
