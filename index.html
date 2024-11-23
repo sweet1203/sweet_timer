@@ -211,6 +211,93 @@
       isFlashing = false;
       document.body.style.backgroundColor = '#ffe4e6';
     }
+
+let wakeLock = null;
+
+// Wake Lock 활성화 함수
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Wake Lock is active');
+    } else {
+      console.warn('Wake Lock API is not supported on this browser.');
+    }
+  } catch (err) {
+    console.error(`Failed to acquire wake lock: ${err.message}`);
+  }
+}
+
+// Wake Lock 해제 함수
+function releaseWakeLock() {
+  if (wakeLock !== null) {
+    wakeLock.release().then(() => {
+      wakeLock = null;
+      console.log('Wake Lock released');
+    });
+  }
+}
+
+// 타이머 시작 시 Wake Lock 요청
+function startTimer() {
+  requestWakeLock(); // 화면 꺼짐 방지 활성화
+  const timeInput = document.getElementById('timeInput').value;
+  if (!isPaused) {
+    totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
+    if (isNaN(totalTime) || totalTime <= 0) {
+      alert("Please enter a valid number of minutes.");
+      return;
+    }
+    remainingTime = totalTime;
+  }
+  isPaused = false;
+  document.getElementById('pauseBtn').disabled = false;
+  document.getElementById('resetBtn').disabled = false;
+
+  const timerCircle = document.getElementById('timerCircle');
+  const timeDisplay = document.getElementById('timeDisplay');
+
+  clearInterval(timerInterval);
+  stopFlashing(); // Reset flashing if it was active
+
+  timerInterval = setInterval(() => {
+    if (remainingTime <= 0) {
+      clearInterval(timerInterval);
+      timeDisplay.textContent = "Time's up!";
+      timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
+      startFlashing();
+      releaseWakeLock(); // 화면 꺼짐 방지 해제
+      return;
+    }
+
+    remainingTime--;
+
+    // Update time display
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    // Update circle
+    const progress = ((totalTime - remainingTime) / totalTime) * 100;
+    timerCircle.style.background = `conic-gradient(#FF69B4 ${progress}%, white ${progress}%)`;
+  }, 1000);
+}
+
+// 타이머 리셋 시 Wake Lock 해제
+function resetTimer() {
+  clearInterval(timerInterval);
+  remainingTime = 0;
+  document.getElementById('timeDisplay').textContent = "00:00";
+  document.getElementById('timerCircle').style.background = `conic-gradient(white 0%, white 100%)`;
+  document.getElementById('pauseBtn').disabled = true;
+  document.getElementById('resetBtn').disabled = true;
+  document.getElementById('timeInput').value = '';
+  stopFlashing();
+  isPaused = false;
+  releaseWakeLock(); // 화면 꺼짐 방지 해제
+}
+
+    
   </script>
 </body>
 </html>
