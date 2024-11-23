@@ -158,17 +158,22 @@
     }
 
 // 알람 소리 재생 함수
-      function playAlarmSound() {
-      const alarmToggle = document.getElementById('alarmToggle');
-      if (alarmToggle.checked) { // 알람이 활성화된 경우만 소리 재생
-        const alarmSound = document.getElementById('alarmSound');
-        alarmSound.play();
-      }
-    }
- 
+     function playAlarmSound() {
+  const alarmToggle = document.getElementById('alarmToggle');
+  if (alarmToggle.checked) {
+    const alarmSound = document.getElementById('alarmSound');
+    alarmSound.play().catch(err => {
+      alert('Sound playback failed. Ensure your device is not in silent mode and interact with the page first.');
+      console.error('iOS auto-play restriction or silent mode:', err);
+    });
+  }
+} 
 
     function startTimer() {
       const timeInput = document.getElementById('timeInput').value;
+      const alarmSound = document.getElementById('alarmSound');
+  alarmSound.load(); // iOS에서 사운드를 미리 로드
+  requestWakeLock();
       if (!isPaused) {
         totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
         if (isNaN(totalTime) || totalTime <= 0) {
