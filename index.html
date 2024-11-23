@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
   <!-- 이 타이머는 대성여자고등학교 정보샘이 만들었습니다. -->
 <html lang="en">
@@ -103,6 +104,15 @@
     <button onclick="pauseTimer()" id="pauseBtn" disabled>Pause</button>
     <button onclick="resetTimer()" id="resetBtn" disabled>Reset</button>
   </div>
+
+<div id="alarmControl">
+    <label for="alarmToggle">
+      <input type="checkbox" id="alarmToggle" > Enable Alarm
+    </label>
+  </div>
+   <audio id="alarmSound" src="alarm.wav"></audio>
+
+
   <div id="timerContainer">
     <div class="circle" id="timerCircle"></div>
   </div>
@@ -110,7 +120,7 @@
 
   <!-- Footer -->
   <div class="footer">
-    <a href="other_colors.html">CLICK : Other Colors </a><br><br>
+    <a href="other_colors.html">Other Colors?</a><br><br>
 - 대성여고 정보샘 제작 - 
 
   </div>
@@ -125,95 +135,123 @@
     let wakeLock = null; // Wake Lock 객체 추가
 
     // Wake Lock 활성화 함수
-    async function requestWakeLock() {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen');
-          console.log('Wake Lock is active'); // Wake Lock 활성화 로그
-        } else {
-          console.warn('Wake Lock API is not supported on this browser.');
-        }
-      } catch (err) {
-        console.error(`Failed to acquire wake lock: ${err.message}`);
+  async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      if (!wakeLock) { // 중복 요청 방지
+        wakeLock = await navigator.wakeLock.request('screen');
+        console.log('Wake Lock is active');
       }
+    } else {
+      console.warn('Wake Lock API is not supported on this browser.');
     }
+  } catch (err) {
+    console.error(`Failed to acquire wake lock: ${err.message}`);
+  }
+}
 
-    // Wake Lock 해제 함수
-    function releaseWakeLock() {
-      if (wakeLock !== null) {
-        wakeLock.release().then(() => {
-          wakeLock = null;
-          console.log('Wake Lock released'); // Wake Lock 해제 로그
-        });
-      }
+// Wake Lock 해제 함수
+function releaseWakeLock() {
+  if (wakeLock !== null) {
+    wakeLock.release().then(() => {
+      wakeLock = null;
+      console.log('Wake Lock released');
+    }).catch(err => {
+      console.error(`Failed to release Wake Lock: ${err.message}`);
+    });
+  }
+}
+
+
+   // 알람 소리 재생 함수
+     function playAlarmSound() {
+  const alarmToggle = document.getElementById('alarmToggle');
+  if (alarmToggle.checked) {
+    const alarmSound = document.getElementById('alarmSound');
+    alarmSound.play().catch(err => {
+      alert('Sound playback failed. Ensure your device is not in silent mode and interact with the page first.');
+      console.error('iOS auto-play restriction or silent mode:', err);
+    });
+  }
+} 
+
+
+
+// 타이머 시작 함수
+function startTimer() {
+  const timeInput = document.getElementById('timeInput').value;
+  const alarmSound = document.getElementById('alarmSound');
+  alarmSound.load(); // iOS에서 사운드를 미리 로드
+
+  if (!isPaused) {
+    totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
+    if (isNaN(totalTime) || totalTime <= 0) {
+      alert("Please enter a valid number of minutes.");
+      return;
     }
+    remainingTime = totalTime;
+  }
 
-    function startTimer() {
-      const timeInput = document.getElementById('timeInput').value;
-      if (!isPaused) {
-        totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
-        if (isNaN(totalTime) || totalTime <= 0) {
-          alert("Please enter a valid number of minutes.");
-          return;
-        }
-        remainingTime = totalTime;
-      }
-      isPaused = false;
-      document.getElementById('pauseBtn').disabled = false;
-      document.getElementById('resetBtn').disabled = false;
+  isPaused = false;
+  document.getElementById('pauseBtn').disabled = false;
+  document.getElementById('resetBtn').disabled = false;
 
-      const timerCircle = document.getElementById('timerCircle');
-      const timeDisplay = document.getElementById('timeDisplay');
+  const timerCircle = document.getElementById('timerCircle');
+  const timeDisplay = document.getElementById('timeDisplay');
 
+  clearInterval(timerInterval);
+  stopFlashing(); // Reset flashing if it was active
+
+  requestWakeLock(); // 타이머 시작 시 Wake Lock 활성화
+
+  timerInterval = setInterval(() => {
+    if (remainingTime <= 0) {
       clearInterval(timerInterval);
-      stopFlashing(); // Reset flashing if it was active
-
-      // Wake Lock 활성화
-      requestWakeLock();
-
-      timerInterval = setInterval(() => {
-        if (remainingTime <= 0) {
-          clearInterval(timerInterval);
-          timeDisplay.textContent = "Time's up!";
-          timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
-          startFlashing();
-          releaseWakeLock(); // 타이머가 끝날 때 Wake Lock 해제
-          return;
-        }
-
-        remainingTime--;
-
-        // Update time display
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = remainingTime % 60;
-        timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-        // Update circle
-        const progress = ((totalTime - remainingTime) / totalTime) * 100;
-        timerCircle.style.background = `conic-gradient(#FF69B4 ${progress}%, white ${progress}%)`;
-      }, 1000);
+      timeDisplay.textContent = "Time's up!";
+      timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
+      startFlashing();
+      playAlarmSound();
+      releaseWakeLock(); // 타이머 종료 시 Wake Lock 해제
+      return;
     }
 
-    function pauseTimer() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        isPaused = true;
-        document.getElementById('pauseBtn').disabled = true;
-      }
-    }
+    remainingTime--;
 
-    function resetTimer() {
-      clearInterval(timerInterval);
-      remainingTime = 0;
-      document.getElementById('timeDisplay').textContent = "00:00";
-      document.getElementById('timerCircle').style.background = `conic-gradient(white 0%, white 100%)`;
-      document.getElementById('pauseBtn').disabled = true;
-      document.getElementById('resetBtn').disabled = true;
-      document.getElementById('timeInput').value = '';
-      stopFlashing();
-      isPaused = false;
-      releaseWakeLock(); // 타이머가 리셋될 때 Wake Lock 해제
-    }
+    // Update time display
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    // Update circle
+    const progress = ((totalTime - remainingTime) / totalTime) * 100;
+    timerCircle.style.background = `conic-gradient(#FF69B4 ${progress}%, white ${progress}%)`;
+  }, 1000);
+}
+
+// 타이머 일시정지 함수
+function pauseTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    isPaused = true;
+    document.getElementById('pauseBtn').disabled = true;
+    releaseWakeLock(); // 일시정지 시 Wake Lock 해제
+  }
+}
+
+// 타이머 리셋 함수
+function resetTimer() {
+  clearInterval(timerInterval);
+  remainingTime = 0;
+  document.getElementById('timeDisplay').textContent = "00:00";
+  document.getElementById('timerCircle').style.background = `conic-gradient(white 0%, white 100%)`;
+  document.getElementById('pauseBtn').disabled = true;
+  document.getElementById('resetBtn').disabled = true;
+  document.getElementById('timeInput').value = '';
+  stopFlashing();
+  isPaused = false;
+  releaseWakeLock(); // 리셋 시 Wake Lock 해제
+}
+
 
     function startFlashing() {
       isFlashing = true;
@@ -226,6 +264,9 @@
           body.style.backgroundColor = '#ffe4e6'; // Reset to original color
           return;
         }
+
+
+
         body.style.backgroundColor = flash ? '#FF69B4' : '#ffe4e6';
         flash = !flash;
       }, 500);
