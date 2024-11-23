@@ -234,23 +234,26 @@
       document.body.style.backgroundColor = '#f0f0f0';
     }
 
-    function setTimerColor(color) {
-      timerColor = color;
-    }
+  function setTimerColor(color) {
+  timerColor = color; // 선택된 색상 저장
+  const timerCircle = document.getElementById('timerCircle');
+  timerCircle.style.background = `conic-gradient(${timerColor} 0%, white 0%)`; // 즉시 색상 업데이트
+}
 
-let wakeLock = null;
+let wakeLock = null; // Wake Lock 객체
 
 // Wake Lock 활성화 함수
 async function requestWakeLock() {
   try {
     if ('wakeLock' in navigator) {
+      // Wake Lock 요청
       wakeLock = await navigator.wakeLock.request('screen');
-      console.log('Wake Lock is active');
+      console.log('Wake Lock is active'); // 활성화 확인 로그
     } else {
       console.warn('Wake Lock API is not supported on this browser.');
     }
   } catch (err) {
-    console.error(`Failed to acquire wake lock: ${err.message}`);
+    console.error(`Wake Lock activation failed: ${err.message}`);
   }
 }
 
@@ -259,14 +262,16 @@ function releaseWakeLock() {
   if (wakeLock !== null) {
     wakeLock.release().then(() => {
       wakeLock = null;
-      console.log('Wake Lock released');
+      console.log('Wake Lock released'); // 해제 확인 로그
+    }).catch(err => {
+      console.error(`Failed to release Wake Lock: ${err.message}`);
     });
   }
 }
 
-// 타이머 시작 시 Wake Lock 요청
+// 타이머 시작 시 Wake Lock 활성화
 function startTimer() {
-  requestWakeLock(); // 화면 꺼짐 방지 활성화
+  requestWakeLock(); // Wake Lock 요청
   const timeInput = document.getElementById('timeInput').value;
   if (!isPaused) {
     totalTime = parseInt(timeInput) * 60; // Convert minutes to seconds
@@ -292,7 +297,7 @@ function startTimer() {
       timeDisplay.textContent = "Time's up!";
       timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
       startFlashing();
-      releaseWakeLock(); // 화면 꺼짐 방지 해제
+      releaseWakeLock(); // 타이머 종료 시 Wake Lock 해제
       return;
     }
 
@@ -305,7 +310,7 @@ function startTimer() {
 
     // Update circle
     const progress = ((totalTime - remainingTime) / totalTime) * 100;
-    timerCircle.style.background = `conic-gradient(#FF69B4 ${progress}%, white ${progress}%)`;
+    timerCircle.style.background = `conic-gradient(${timerColor} ${progress}%, white ${progress}%)`;
   }, 1000);
 }
 
@@ -320,10 +325,9 @@ function resetTimer() {
   document.getElementById('timeInput').value = '';
   stopFlashing();
   isPaused = false;
-  releaseWakeLock(); // 화면 꺼짐 방지 해제
+  releaseWakeLock(); // 타이머 리셋 시 Wake Lock 해제
 }
 
-    
   </script>
 </body>
 </html>
