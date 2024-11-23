@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+  <!-- 이 타이머는 대성여자고등학교 정보샘이 만들었습니다. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,7 +11,7 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
-      background-color: #ffe4e6;
+      background-color: #ffe4e6; /* 밝은 분홍색 배경 */
       color: #333;
       transition: background-color 0.3s ease;
     }
@@ -24,30 +26,34 @@
       height: 100%;
       border-radius: 50%;
       background: conic-gradient(#FF69B4 0%, white 0%);
-      transition: background 0.5s ease;
+      transition: background 0.5s ease; /* 부드러운 움직임 */
     }
     #timeInput {
-      margin: 10px auto;
+      margin: 10px auto; /* 가운데 정렬을 위한 여백 */
       font-size: 1.2rem;
       padding: 5px;
-      width: 30%;
-      border: 2px solid #FF69B4;
+      width: 30%; /* 기본 너비: 30% */
+      border: 2px solid #FF69B4; /* 분홍색 테두리 */
       border-radius: 5px;
-      display: block;
-      text-align: center;
+      display: block; /* 입력 필드를 블록 요소로 설정 */
+      text-align: center; /* 입력된 텍스트를 가운데 정렬 */
+    }
+    p {
+      text-align: center; /* "Enter minutes" 텍스트를 가운데 정렬 */
+      margin-bottom: 10px;
     }
     button {
       font-size: 1.1rem;
       padding: 10px 20px;
       margin: 10px 5px;
       border: none;
-      background-color: #FF69B4;
+      background-color: #FF69B4; /* 분홍색 버튼 */
       color: white;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #e05696;
+      background-color: #e05696; /* 더 진한 분홍색 */
     }
     button:disabled {
       background-color: #ccc;
@@ -62,7 +68,6 @@
       font-size: 2rem;
       margin-top: 20px;
     }
-    .footer {
     .footer {
       margin-top: 20px;
       font-size: 0.8rem;
@@ -98,65 +103,51 @@
     <button onclick="pauseTimer()" id="pauseBtn" disabled>Pause</button>
     <button onclick="resetTimer()" id="resetBtn" disabled>Reset</button>
   </div>
-  <div id="alarmControl">
-    <label>
-      <input type="checkbox" id="alarmToggle" checked> Enable Alarm
-    </label>
-  </div>
-  <audio id="alarmSound" src="alarm.mp3"></audio>
   <div id="timerContainer">
     <div class="circle" id="timerCircle"></div>
   </div>
   <p id="timeDisplay">00:00</p>
 
+  <!-- Footer -->
   <div class="footer">
-    <p>- 대성여고 정보샘 제작 -</p>
+    <a href="other_colors.html">Other Colors?</a><br><br>
+- 대성여고 정보샘 제작 - 
+
   </div>
 
   <script>
+  
     let timerInterval;
     let remainingTime;
     let totalTime;
     let isPaused = false;
     let isFlashing = false;
-    let wakeLock = null;
+    let wakeLock = null; // Wake Lock 객체 추가
 
-    // Wake Lock 활성화
+    // Wake Lock 활성화 함수
     async function requestWakeLock() {
       try {
         if ('wakeLock' in navigator) {
           wakeLock = await navigator.wakeLock.request('screen');
-          console.log('Wake Lock is active');
+          console.log('Wake Lock is active'); // Wake Lock 활성화 로그
         } else {
-          console.warn('Wake Lock API is not supported.');
+          console.warn('Wake Lock API is not supported on this browser.');
         }
       } catch (err) {
         console.error(`Failed to acquire wake lock: ${err.message}`);
       }
     }
 
-    // Wake Lock 해제
+    // Wake Lock 해제 함수
     function releaseWakeLock() {
       if (wakeLock !== null) {
         wakeLock.release().then(() => {
           wakeLock = null;
-          console.log('Wake Lock released');
+          console.log('Wake Lock released'); // Wake Lock 해제 로그
         });
       }
     }
 
-    // 알람 소리 재생
-    function playAlarmSound() {
-      const alarmToggle = document.getElementById('alarmToggle');
-      if (alarmToggle.checked) {
-        const alarmSound = document.getElementById('alarmSound');
-        alarmSound.play().catch(err => {
-          console.error('Error playing alarm sound:', err);
-        });
-      }
-    }
-
-    // 타이머 시작
     function startTimer() {
       const timeInput = document.getElementById('timeInput').value;
       if (!isPaused) {
@@ -186,8 +177,7 @@
           timeDisplay.textContent = "Time's up!";
           timerCircle.style.background = `conic-gradient(white 100%, white 100%)`;
           startFlashing();
-          playAlarmSound(); // 독립적으로 알람 소리 재생
-          releaseWakeLock(); // Wake Lock 해제
+          releaseWakeLock(); // 타이머가 끝날 때 Wake Lock 해제
           return;
         }
 
@@ -204,7 +194,6 @@
       }, 1000);
     }
 
-    // 타이머 일시정지
     function pauseTimer() {
       if (timerInterval) {
         clearInterval(timerInterval);
@@ -213,7 +202,6 @@
       }
     }
 
-    // 타이머 리셋
     function resetTimer() {
       clearInterval(timerInterval);
       remainingTime = 0;
@@ -224,10 +212,9 @@
       document.getElementById('timeInput').value = '';
       stopFlashing();
       isPaused = false;
-      releaseWakeLock(); // Wake Lock 해제
+      releaseWakeLock(); // 타이머가 리셋될 때 Wake Lock 해제
     }
 
-    // 화면 깜박임
     function startFlashing() {
       isFlashing = true;
       const body = document.body;
@@ -243,6 +230,7 @@
         flash = !flash;
       }, 500);
 
+      // Add click event to stop flashing and reset timer
       document.body.addEventListener('click', () => {
         if (isFlashing) {
           stopFlashing();
@@ -256,5 +244,6 @@
       document.body.style.backgroundColor = '#ffe4e6';
     }
   </script>
+
 </body>
 </html>
